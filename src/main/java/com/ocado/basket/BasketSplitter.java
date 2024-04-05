@@ -60,6 +60,11 @@ public class BasketSplitter {
             String theBiggesProductsDeliveryMethod = "";
             for (String product : basket) {
                 List<String> deliveryTypes = productTypeToDeliveryTypesMap.get(product);
+                
+                // Check if the product can be delivered
+                if (deliveryTypes == null) {
+                    throw new RuntimeException("Unable to split the basket. The basket contains products that cannot be delivered.");
+                }
 
                 for (String deliveryMethod : deliveryTypes) {
                     if (deliveryMap.containsKey(deliveryMethod)) {
