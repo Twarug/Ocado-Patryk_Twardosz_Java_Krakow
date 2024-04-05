@@ -14,15 +14,21 @@ public final class Main {
         // Crate a BasketSplitter object
         BasketSplitter splitter = new BasketSplitter("config.json");
 
-        // Load an example basket from the file
-        List<String> basket = new Gson().fromJson(new FileReader("basket-1.json"), BASKET_TYPE);
-        
-        // Split the basket
-        var splitBasket = splitter.splitBasket(basket);
+        String[] testFiles = {"basket-1.json", "basket-2.json"};
 
-        // Print out the split basket
-        for (var entry : splitBasket.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue());
+        for (String testFile : testFiles) {            
+            // Load an example basket from the file
+            List<String> basket = new Gson().fromJson(new FileReader(testFile), BASKET_TYPE);
+
+            // Split the basket
+            var splitBasket = splitter.splitBasket(basket);
+
+            // Print out the split basket
+            for (var entry : splitBasket.entrySet()) {
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
+            
+            System.out.println("\n====================================\n");
         }
     }
 }
