@@ -7,6 +7,7 @@ import com.google.gson.stream.JsonReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,10 +35,69 @@ public class BasketSplitter {
      * Splits the basket into multiple baskets based on the delivery method.
      * 
      * @param basket The basket to split
-     * @return A map where the key is a basket delivery method and the value is a list of product in the baskets 
+     * @return Map of a basket delivery method to a list of product in the baskets 
      */
-    public Map<String, List<String>> splitBasket(List<String> basket) {        
+    public Map<String, List<String>> splitBasket(List<String> basket) {
         Map<String, List<String>> splitBasket = new HashMap<>();
+
+        // Mae a copy of the basket to avoid modifying the original one & to be able to remove products from it
+        basket = new ArrayList<>(basket);
+
+        int iterationCounter = 0;
+        // Split the basket into multiple baskets based on the delivery method until the basket is empty
+        while (!basket.isEmpty()) {
+
+            // Fail if basket contains products that cannot be delivered
+            if (iterationCounter >= productTypeToDeliveryTypesMap.size()) {
+                throw new RuntimeException("Unable to split the basket. The basket contains products that cannot be delivered.");
+            }
+
+            // Map of delivery method to the number of remaining products delivered with that method
+            Map<String, Integer> deliveryMap = new HashMap<>();
+
+            // Sort all products into the deliveryMap
+            int theMostProducts = 0;
+            String theBiggesProductsDeliveryMethod = "";
+            for (String product : basket) {
+                List<String> deliveryTypes = productTypeToDeliveryTypesMap.get(product);
+
+                for (String deliveryMethod : deliveryTypes) {
+                    if (deliveryMap.containsKey(deliveryMethod)) {
+                        int size = deliveryMap.get(deliveryMethod);
+                        size++;
+                        deliveryMap.put(deliveryMethod, size);
+
+                        if (size > theMostProducts) {
+                            theMostProducts = size;
+                            theBiggesProductsDeliveryMethod = deliveryMethod;
+                        }
+                    } else {
+                        deliveryMap.put(deliveryMethod, 1);
+
+                        if (theMostProducts == 0) {
+                            theMostProducts = 1;
+                            theBiggesProductsDeliveryMethod = deliveryMethod;
+                        }
+                    }
+                }
+            }
+
+            // List to store the biggest delivery basket
+            var theBiggestDelivery = new ArrayList<String>();
+            splitBasket.put(theBiggesProductsDeliveryMethod, theBiggestDelivery);
+
+            // Add corresponding products to the biggest delivery basket & remove them from the original basket
+            for (int i = 0; i < basket.size(); i++) {
+                String product = basket.get(i);
+                List<String> deliveryTypes = productTypeToDeliveryTypesMap.get(product);
+
+                if (deliveryTypes.contains(theBiggesProductsDeliveryMethod)) {
+                    theBiggestDelivery.add(product);
+                    basket.remove(i--);
+                }
+            }
+            iterationCounter++;
+        }
 
         return splitBasket;
     }
