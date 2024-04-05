@@ -24,6 +24,10 @@ public class BasketSplitter {
      * @param absolutePathToConfigFile The absolute path to the configuration file
      */    
     public BasketSplitter(String absolutePathToConfigFile) throws FileNotFoundException {
+        if (absolutePathToConfigFile == null) {
+            throw new RuntimeException("Unable to create the basket splitter. The path to the configuration file is null.");
+        }
+        
         Gson gson = new Gson();
 
         // Read the configuration file
@@ -38,6 +42,10 @@ public class BasketSplitter {
      * @return Map of a basket delivery method to a list of product in the baskets 
      */
     public Map<String, List<String>> splitBasket(List<String> basket) {
+        if (basket == null) {
+            throw new RuntimeException("Unable to split the basket. The basket is null.");
+        }
+        
         Map<String, List<String>> splitBasket = new HashMap<>();
 
         // Mae a copy of the basket to avoid modifying the original one & to be able to remove products from it
